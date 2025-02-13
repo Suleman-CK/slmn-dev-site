@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oops! Something Went Wrong</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .error-container {
+            margin-top: 50px;
+        }
+        h1 {
+            color: #dc3545;
+        }
+        canvas {
+            background-color: #87CEEB;
+            display: block;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>Oops! Something Went Wrong</h1>
+        <p>But hey, why not play a quick game while we fix it?</p>
+    </div>
+    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let bird = { x: 50, y: 150, radius: 10, gravity: 0.6, lift: -10, velocity: 0 };
+        let pipes = [];
+        let frame = 0;
+
+        function drawBird() {
+            ctx.fillStyle = "yellow";
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawPipes() {
+            ctx.fillStyle = "green";
+            pipes.forEach(pipe => {
+                ctx.fillRect(pipe.x, 0, 40, pipe.top);
+                ctx.fillRect(pipe.x, pipe.bottom, 40, canvas.height - pipe.bottom);
+            });
+        }
+
+        function update() {
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            
+            if (frame % 100 === 0) {
+                let top = Math.random() * (canvas.height / 2);
+                let gap = 100;
+                pipes.push({ x: canvas.width, top: top, bottom: top + gap });
+            }
+
+            pipes.forEach(pipe => {
+                pipe.x -= 2;
+                if (
+                    bird.x > pipe.x && bird.x < pipe.x + 40 &&
+                    (bird.y < pipe.top || bird.y > pipe.bottom)
+                ) {
+                    location.reload();
+                }
+            });
+            
+            if (bird.y > canvas.height || bird.y < 0) location.reload();
+            
+            frame++;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBird();
+            drawPipes();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener("keydown", () => bird.velocity = bird.lift);
+        gameLoop();
+    </script>
+    
+    <p style="text-align: center;"><a href="/index.html">GO TO HOME?</a></p>
+</body>
+</html>
